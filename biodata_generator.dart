@@ -1,46 +1,122 @@
-void main() {
-  // Simulated user input (DartPad-friendly)
-  String name = "Safwan C S";
-  int age = 20;
-  String gender = "Male";
-  String email = "safwan@example.com";
-  String phone = "9876543210";
-  String address = "Kerala, India";
-  String qualification = "B.Tech ECE";
-  List<String> skills = ["Dart", "Flutter", "HTML", "CSS"];
+import 'package:flutter/material.dart';
 
-  printBiodata(
-    name,
-    age,
-    gender,
-    email,
-    phone,
-    address,
-    qualification,
-    skills,
-  );
+void main() {
+  runApp(const BiodataApp());
 }
 
-void printBiodata(
-  String name,
-  int age,
-  String gender,
-  String email,
-  String phone,
-  String address,
-  String qualification,
-  List<String> skills,
-) {
-  print("══════════════════════════════════════");
-  print("            BIODATA");
-  print("══════════════════════════════════════");
-  print("Name           : $name");
-  print("Age            : $age");
-  print("Gender         : $gender");
-  print("Email          : $email");
-  print("Phone          : $phone");
-  print("Address        : $address");
-  print("Qualification  : $qualification");
-  print("Skills         : ${skills.join(', ')}");
-  print("══════════════════════════════════════");
+class BiodataApp extends StatelessWidget {
+  const BiodataApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BiodataForm(),
+    );
+  }
+}
+
+class BiodataForm extends StatefulWidget {
+  @override
+  State<BiodataForm> createState() => _BiodataFormState();
+}
+
+class _BiodataFormState extends State<BiodataForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  final nameCtrl = TextEditingController();
+  final ageCtrl = TextEditingController();
+  final genderCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final phoneCtrl = TextEditingController();
+  final skillsCtrl = TextEditingController();
+
+  bool showBiodata = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Biodata Generator")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              buildField("Full Name", nameCtrl),
+              buildField("Age", ageCtrl, isNumber: true),
+              buildField("Gender", genderCtrl),
+              buildField("Email", emailCtrl),
+              buildField("Phone", phoneCtrl),
+              buildField("Skills (comma separated)", skillsCtrl),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    setState(() => showBiodata = true);
+                  }
+                },
+                child: const Text("Generate Biodata"),
+              ),
+
+              const SizedBox(height: 30),
+
+              if (showBiodata) biodataCard(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildField(String label, TextEditingController controller,
+      {bool isNumber = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        validator: (value) =>
+            value == null || value.isEmpty ? "Required" : null,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  Widget biodataCard() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "BIODATA",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            biodataRow("Name", nameCtrl.text),
+            biodataRow("Age", ageCtrl.text),
+            biodataRow("Gender", genderCtrl.text),
+            biodataRow("Email", emailCtrl.text),
+            biodataRow("Phone", phoneCtrl.text),
+            biodataRow("Skills", skillsCtrl.text),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget biodataRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text("$label : $value"),
+    );
+  }
 }
